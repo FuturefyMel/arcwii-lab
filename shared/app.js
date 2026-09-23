@@ -321,42 +321,6 @@ const Lab = (() => {
     });
   }
 
-  // ---------- export / import JSON (backup + resume on another device) ----------
-  function exportJson(root, toolSlug) {
-    const info = getStudentInfo();
-    const payload = { tool: toolSlug, savedAt: new Date().toISOString(), student: info, data: serialize(root) };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${slugify(info.name)}-${toolSlug}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }
-
-  function importJson(root, storageKey, file, done) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const payload = JSON.parse(e.target.result);
-        const data = payload.data || payload;
-        restore(root, data);
-        localStorage.setItem(storageKey, JSON.stringify(serialize(root)));
-        if (payload.student) {
-          localStorage.setItem(STUDENT_INFO_KEY, JSON.stringify(payload.student));
-          wireStudentBar();
-        }
-        if (done) done(true);
-      } catch (err) {
-        alert("That file could not be read. Make sure you're importing a save file exported from this lab.");
-        if (done) done(false);
-      }
-    };
-    reader.readAsText(file);
-  }
-
   // ---------- PDF export ----------
   // Builds a plain, print-friendly copy of the form (values as text, images kept)
   // inside #print-root, then rasterizes it to a paginated PDF.
@@ -513,7 +477,7 @@ const Lab = (() => {
       doc.save(`${slugify(info.name)}-${toolSlug}.pdf`);
     } catch (err) {
       console.error(err);
-      alert("The PDF could not be created. Please try again, or use Export JSON as a backup.");
+      alert("The PDF could not be created. Please try again.");
     } finally {
       overlay.remove();
       printRoot.style.display = "none";
@@ -556,6 +520,6 @@ const Lab = (() => {
 
   return {
     $, $all, wireStudentBar, wireImageUpload, wireVideoUpload, initAutosave, clearStorage,
-    exportJson, importJson, exportPdf, initFrameControls
+    exportPdf, initFrameControls
   };
 })();
