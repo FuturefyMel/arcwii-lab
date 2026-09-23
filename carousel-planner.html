@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carousel Post Planner — ARCWII Student Practice Lab</title>
+<link rel="stylesheet" href="shared/styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-row">
+    <div>
+      <div class="brand">ARCWII &middot; Social Media Marketing Certificate Course</div>
+      <h1>Student Practice Lab</h1>
+    </div>
+    <nav><a href="index.html">&larr; All tools</a></nav>
+  </div>
+</header>
+
+<main>
+  <h1 class="planner-title">Carousel Post Planner</h1>
+  <p class="planner-sub">Use one main idea and a clear order. Add or remove frames as needed. Matches Student Workbook, p. 65.</p>
+
+  <div class="student-bar">
+    <div class="field">
+      <label for="studentName">Student name</label>
+      <input type="text" id="studentName" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="studentProject">Campaign brand or project</label>
+      <input type="text" id="studentProject" autocomplete="off">
+    </div>
+  </div>
+
+  <form id="plannerForm">
+    <section class="card">
+      <h2>Frames</h2>
+      <div class="frame-controls" data-noprint>
+        <button type="button" class="btn btn-secondary btn-small" id="addFrame">+ Add frame</button>
+        <button type="button" class="btn btn-secondary btn-small" id="removeFrame">&minus; Remove last frame</button>
+        <span class="save-status" id="frameCount"></span>
+      </div>
+
+      <!-- Frames 1-8 are always in the page; add/remove just shows or hides them. -->
+      <div id="frames"></div>
+    </section>
+
+    <section class="card">
+      <h2>Wrap-up</h2>
+      <div class="prompt-row">
+        <label for="finalCta">Final call to action</label>
+        <textarea class="answer" id="finalCta" data-field="finalCta"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="altTextAlt">Alt text or text alternative</label>
+        <textarea class="answer" id="altTextAlt" data-field="altTextAlt"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="fileName">File name</label>
+        <textarea class="answer" id="fileName" data-field="fileName"></textarea>
+      </div>
+    </section>
+
+    <div class="action-bar" data-noprint>
+      <button type="button" class="btn btn-primary" id="downloadPdfBtn">Download PDF</button>
+      <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+      <label class="btn btn-secondary" for="importJsonInput">Import JSON&hellip;</label>
+      <input type="file" id="importJsonInput" accept="application/json" class="visually-hidden">
+      <button type="button" class="btn btn-danger" id="clearBtn">Start over</button>
+      <span class="spacer"></span>
+      <span class="save-status" id="saveStatus">Not saved yet</span>
+    </div>
+  </form>
+
+  <p class="footer-note">Copyright &copy; ARC International Corporation 2026. For course practice use.</p>
+</main>
+
+<div id="print-root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="shared/app.js"></script>
+<script>
+  const TOOL_SLUG = "carousel-planner";
+  const STORAGE_KEY = "arcwii-lab-carousel-planner";
+  const MAX_FRAMES = 8;
+  const DEFAULT_FRAMES = 5;
+
+  const framesRoot = document.getElementById("frames");
+  for (let i = 1; i <= MAX_FRAMES; i++) {
+    const el = document.createElement("div");
+    el.className = "frame-card";
+    el.dataset.frame = i;
+    el.innerHTML = `
+      <h3>Frame ${i}</h3>
+      <div class="image-upload" data-image-widget style="margin-bottom:12px;">
+        <div class="image-preview-wrap">
+          <img alt="Preview of frame ${i} image" style="display:none;">
+          <div class="image-upload-controls">
+            <label class="btn btn-secondary btn-small" for="frame${i}Image">Choose image&hellip;</label>
+            <input type="file" id="frame${i}Image" accept="image/*" class="visually-hidden">
+            <button type="button" class="btn btn-danger btn-small" data-remove-image style="display:none;">Remove image</button>
+          </div>
+        </div>
+        <div data-field="frame${i}Image" data-type="image" class="visually-hidden"></div>
+      </div>
+      <div class="prompt-row">
+        <label for="frame${i}Purpose">Purpose</label>
+        <textarea class="answer" id="frame${i}Purpose" data-field="frame${i}Purpose"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="frame${i}Words">Words</label>
+        <textarea class="answer" id="frame${i}Words" data-field="frame${i}Words"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="frame${i}Visual">Visual idea</label>
+        <textarea class="answer" id="frame${i}Visual" data-field="frame${i}Visual"></textarea>
+      </div>`;
+    framesRoot.appendChild(el);
+  }
+
+  const form = document.getElementById("plannerForm");
+  Lab.wireStudentBar();
+  Lab.wireImageUpload(form);
+  Lab.initAutosave(form, STORAGE_KEY);
+  Lab.initFrameControls(form, {
+    min: 1, max: MAX_FRAMES, defaultCount: DEFAULT_FRAMES,
+    countStorageKey: STORAGE_KEY + "-frame-count"
+  });
+
+  document.getElementById("downloadPdfBtn").addEventListener("click", (e) => {
+    Lab.exportPdf(form, TOOL_SLUG, "Carousel Post Planner", e.currentTarget);
+  });
+  document.getElementById("exportJsonBtn").addEventListener("click", () => {
+    Lab.exportJson(form, TOOL_SLUG);
+  });
+  document.getElementById("importJsonInput").addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) Lab.importJson(form, STORAGE_KEY, file, () => { e.target.value = ""; });
+  });
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    Lab.clearStorage(form, STORAGE_KEY);
+  });
+</script>
+</body>
+</html>
