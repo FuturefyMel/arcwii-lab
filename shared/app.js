@@ -1,6 +1,6 @@
 /* ARCWII Student Practice Lab — shared helpers for planner pages.
-   No backend: everything is saved to this browser's localStorage.
-   Students back up / move devices with Export JSON, and submit with Download PDF. */
+   No backend: everything autosaves to this browser's localStorage,
+   and Download PDF is the submission. */
 
 const Lab = (() => {
   const STUDENT_INFO_KEY = "arcwii-lab-student-info";
@@ -98,155 +98,12 @@ const Lab = (() => {
     });
   }
 
-  function formatBytes(bytes) {
-    if (!bytes) return "0 B";
-    const units = ["B", "KB", "MB", "GB"];
-    let i = 0, n = bytes;
-    while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
-    return `${n.toFixed(n < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
-  }
-
-  // ---------- local video storage (IndexedDB — video files are too large for localStorage) ----------
-  const IDB_NAME = "arcwii-lab-files";
-  const IDB_STORE = "videos";
-
-  function openDb() {
-    return new Promise((resolve, reject) => {
-      const req = indexedDB.open(IDB_NAME, 1);
-      req.onupgradeneeded = () => { req.result.createObjectStore(IDB_STORE); };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-  }
-  async function idbSet(key, value) {
-    const db = await openDb();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(IDB_STORE, "readwrite");
-      tx.objectStore(IDB_STORE).put(value, key);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-  async function idbGet(key) {
-    const db = await openDb();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(IDB_STORE, "readonly");
-      const req = tx.objectStore(IDB_STORE).get(key);
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-  }
-  async function idbDelete(key) {
-    const db = await openDb();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(IDB_STORE, "readwrite");
-      tx.objectStore(IDB_STORE).delete(key);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-
-  // ---------- video upload widgets ----------
-  // Wires a container with: <input type="file">, a preview <video>, a remove <button>,
-  // a ".video-file-info" note, and a hidden holder (data-field, data-type="video") that
-  // stores just the file's name/size/type as text — the actual file goes in IndexedDB,
-  // keyed by storageKey + the field name, since video files are far too big for localStorage.
-  function wireVideoUpload(root, storageKey) {
-    $all("[data-video-widget]", root).forEach((widget) => {
-      const fileInput = $("input[type=file]", widget);
-      const video = $("video", widget);
-      const removeBtn = $("[data-remove-video]", widget);
-      const holder = $("[data-type=video]", widget);
-      const info = $(".video-file-info", widget);
-      const wrap = $(".image-upload", widget) || widget;
-      const dbKey = `${storageKey}::${holder.dataset.field}`;
-      const MAX_BYTES = 500 * 1024 * 1024;
-
-      function showMeta(meta, note) {
-        if (meta && meta.name) {
-          info.style.display = "";
-          info.textContent = `${meta.name} (${formatBytes(meta.size)})${note ? " — " + note : ""}`;
-        } else {
-          info.style.display = "none";
-          info.textContent = "";
-        }
-      }
-
-      async function setVideo(file) {
-        if (!file) {
-          video.removeAttribute("src");
-          video.style.display = "none";
-          removeBtn.style.display = "none";
-          wrap.classList.remove("has-image");
-          holder.dataset.value = "";
-          showMeta(null);
-          try { await idbDelete(dbKey); } catch (e) {}
-          widget.dispatchEvent(new CustomEvent("lab:change", { bubbles: true }));
-          return;
-        }
-        video.src = URL.createObjectURL(file);
-        video.style.display = "";
-        removeBtn.style.display = "";
-        wrap.classList.add("has-image");
-        const meta = { name: file.name, size: file.size, type: file.type };
-        holder.dataset.value = JSON.stringify(meta);
-        showMeta(meta);
-        try {
-          await idbSet(dbKey, file);
-        } catch (e) {
-          console.warn("Could not save video locally", e);
-          showMeta(meta, "could not be saved for later — export/submit now");
-        }
-        widget.dispatchEvent(new CustomEvent("lab:change", { bubbles: true }));
-      }
-
-      fileInput.addEventListener("change", () => {
-        const file = fileInput.files && fileInput.files[0];
-        if (!file) return;
-        if (!file.type.startsWith("video/")) {
-          alert("Please choose a video file (MP4, MOV, etc.).");
-          fileInput.value = "";
-          return;
-        }
-        if (file.size > MAX_BYTES) {
-          alert("That video is larger than 500 MB. Please choose a shorter or more compressed clip.");
-          fileInput.value = "";
-          return;
-        }
-        setVideo(file);
-      });
-
-      removeBtn.addEventListener("click", () => {
-        fileInput.value = "";
-        setVideo(null);
-      });
-
-      // Restore the preview from IndexedDB. This runs async, so by the time it resolves,
-      // the synchronous autosave restore() has already populated holder.dataset.value.
-      (async () => {
-        try {
-          const stored = await idbGet(dbKey);
-          if (stored) {
-            video.src = URL.createObjectURL(stored);
-            video.style.display = "";
-            removeBtn.style.display = "";
-            wrap.classList.add("has-image");
-            showMeta({ name: stored.name, size: stored.size });
-          } else if (holder.dataset.value) {
-            const meta = JSON.parse(holder.dataset.value);
-            showMeta(meta, "file not found in this browser — please re-upload");
-          }
-        } catch (e) { /* ignore — file just won't preview */ }
-      })();
-    });
-  }
-
   // ---------- generic serialize / restore for anything marked data-field ----------
   function serialize(root) {
     const data = {};
     $all("[data-field]", root).forEach((el) => {
       const key = el.dataset.field;
-      if (el.dataset.type === "image" || el.dataset.type === "video") {
+      if (el.dataset.type === "image") {
         data[key] = el.dataset.value || "";
       } else {
         data[key] = el.value;
@@ -260,8 +117,8 @@ const Lab = (() => {
     $all("[data-field]", root).forEach((el) => {
       const key = el.dataset.field;
       if (!(key in data)) return;
-      if (el.dataset.type === "image" || el.dataset.type === "video") {
-        const widget = el.closest("[data-image-widget], [data-video-widget]");
+      if (el.dataset.type === "image") {
+        const widget = el.closest("[data-image-widget]");
         if (widget && widget._setImage) widget._setImage(data[key] || "");
         else el.dataset.value = data[key] || "";
       } else {
@@ -294,27 +151,12 @@ const Lab = (() => {
   }
 
   function clearStorage(root, storageKey) {
-    if (!confirm("Clear every answer, image, and video on this page? This cannot be undone.")) return;
+    if (!confirm("Clear every answer and image on this page? This cannot be undone.")) return;
     localStorage.removeItem(storageKey);
     $all("[data-field]", root).forEach((el) => {
       if (el.dataset.type === "image") {
         const widget = el.closest("[data-image-widget]");
         if (widget && widget._setImage) widget._setImage("");
-      } else if (el.dataset.type === "video") {
-        const dbKey = `${storageKey}::${el.dataset.field}`;
-        idbDelete(dbKey).catch(() => {});
-        const widget = el.closest("[data-video-widget]");
-        if (widget) {
-          const video = $("video", widget);
-          const removeBtn = $("[data-remove-video]", widget);
-          const info = $(".video-file-info", widget);
-          const wrap = $(".image-upload", widget) || widget;
-          if (video) { video.removeAttribute("src"); video.style.display = "none"; }
-          if (removeBtn) removeBtn.style.display = "none";
-          if (info) { info.textContent = ""; info.style.display = "none"; }
-          wrap.classList.remove("has-image");
-        }
-        el.dataset.value = "";
       } else {
         el.value = "";
       }
@@ -368,29 +210,6 @@ const Lab = (() => {
               img.replaceWith(div);
             }
           }
-        }
-      } else if (liveEl.dataset.type === "video") {
-        const widget = cloneEl.closest("[data-video-widget]");
-        if (widget) {
-          const controls = $(".image-upload-controls", widget);
-          if (controls) controls.remove();
-          const videoInfo = $(".video-file-info", widget);
-          if (videoInfo) videoInfo.remove();
-          const videoEl = $("video", widget);
-          const div = document.createElement("div");
-          if (liveEl.dataset.value) {
-            div.className = "print-value";
-            try {
-              const meta = JSON.parse(liveEl.dataset.value);
-              div.textContent = `Video attached in the lab: ${meta.name} (${formatBytes(meta.size)}). Upload this video file separately in Google Classroom along with this PDF.`;
-            } catch (e) {
-              div.textContent = "Video attached in the lab. Upload it separately in Google Classroom along with this PDF.";
-            }
-          } else {
-            div.className = "print-value empty";
-            div.textContent = "(no video uploaded)";
-          }
-          if (videoEl) videoEl.replaceWith(div); else widget.appendChild(div);
         }
       } else {
         const div = document.createElement("div");
@@ -519,7 +338,7 @@ const Lab = (() => {
   }
 
   return {
-    $, $all, wireStudentBar, wireImageUpload, wireVideoUpload, initAutosave, clearStorage,
+    $, $all, wireStudentBar, wireImageUpload, initAutosave, clearStorage,
     exportPdf, initFrameControls
   };
 })();

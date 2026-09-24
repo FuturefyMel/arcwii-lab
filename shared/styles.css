@@ -263,19 +263,6 @@ input[type="text"].answer-line:focus {
   border: 1px solid var(--line);
   display: block;
 }
-.image-preview-wrap video {
-  max-width: 320px;
-  max-height: 220px;
-  border-radius: 6px;
-  border: 1px solid var(--line);
-  display: block;
-  background: #000;
-}
-.video-file-info {
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  width: 100%;
-}
 
 .btn {
   font: inherit;
