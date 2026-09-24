@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project 2: Content Kit — ARCWII Student Practice Lab</title>
+<link rel="stylesheet" href="shared/styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-row">
+    <div>
+      <div class="brand">ARCWII &middot; Social Media Marketing Certificate Course</div>
+      <h1>Student Practice Lab</h1>
+    </div>
+    <nav><a href="index.html">&larr; All tools</a></nav>
+  </div>
+</header>
+
+<main>
+  <h1 class="planner-title">Project 2: Brand Story and Content Kit</h1>
+  <p class="planner-sub">Submit at least three polished assets. For each one, upload the image and explain the caption, audience, and goal.</p>
+
+  <div class="student-bar">
+    <div class="field">
+      <label for="studentName">Student name</label>
+      <input type="text" id="studentName" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="studentProject">Campaign brand or project</label>
+      <input type="text" id="studentProject" autocomplete="off">
+    </div>
+  </div>
+
+  <form id="plannerForm">
+    <section class="card">
+      <h2>Asset 1</h2>
+      <div class="image-upload" data-image-widget style="margin-bottom:12px;">
+        <div class="image-preview-wrap">
+          <img alt="Preview of asset 1 image" style="display:none;">
+          <div class="image-upload-controls">
+            <label class="btn btn-secondary btn-small" for="asset1Image">Choose image&hellip;</label>
+            <input type="file" id="asset1Image" accept="image/*" class="visually-hidden">
+            <button type="button" class="btn btn-danger btn-small" data-remove-image style="display:none;">Remove image</button>
+          </div>
+        </div>
+        <div data-field="asset1Image" data-type="image" class="visually-hidden"></div>
+      </div>
+      <div class="prompt-row">
+        <label for="asset1Caption">Caption</label>
+        <textarea class="answer" id="asset1Caption" data-field="asset1Caption"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="asset1Audience">Audience</label>
+        <textarea class="answer" id="asset1Audience" data-field="asset1Audience"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="asset1Goal">Goal</label>
+        <textarea class="answer" id="asset1Goal" data-field="asset1Goal"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Asset 2</h2>
+      <div class="image-upload" data-image-widget style="margin-bottom:12px;">
+        <div class="image-preview-wrap">
+          <img alt="Preview of asset 2 image" style="display:none;">
+          <div class="image-upload-controls">
+            <label class="btn btn-secondary btn-small" for="asset2Image">Choose image&hellip;</label>
+            <input type="file" id="asset2Image" accept="image/*" class="visually-hidden">
+            <button type="button" class="btn btn-danger btn-small" data-remove-image style="display:none;">Remove image</button>
+          </div>
+        </div>
+        <div data-field="asset2Image" data-type="image" class="visually-hidden"></div>
+      </div>
+      <div class="prompt-row">
+        <label for="asset2Caption">Caption</label>
+        <textarea class="answer" id="asset2Caption" data-field="asset2Caption"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="asset2Audience">Audience</label>
+        <textarea class="answer" id="asset2Audience" data-field="asset2Audience"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="asset2Goal">Goal</label>
+        <textarea class="answer" id="asset2Goal" data-field="asset2Goal"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Asset 3</h2>
+      <div class="image-upload" data-image-widget style="margin-bottom:12px;">
+        <div class="image-preview-wrap">
+          <img alt="Preview of asset 3 image" style="display:none;">
+          <div class="image-upload-controls">
+            <label class="btn btn-secondary btn-small" for="asset3Image">Choose image&hellip;</label>
+            <input type="file" id="asset3Image" accept="image/*" class="visually-hidden">
+            <button type="button" class="btn btn-danger btn-small" data-remove-image style="display:none;">Remove image</button>
+          </div>
+        </div>
+        <div data-field="asset3Image" data-type="image" class="visually-hidden"></div>
+      </div>
+      <div class="prompt-row">
+        <label for="asset3Caption">Caption</label>
+        <textarea class="answer" id="asset3Caption" data-field="asset3Caption"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="asset3Audience">Audience</label>
+        <textarea class="answer" id="asset3Audience" data-field="asset3Audience"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="asset3Goal">Goal</label>
+        <textarea class="answer" id="asset3Goal" data-field="asset3Goal"></textarea>
+      </div>
+    </section>
+
+    <div class="action-bar" data-noprint>
+      <button type="button" class="btn btn-primary" id="downloadPdfBtn">Download PDF</button>
+      <button type="button" class="btn btn-danger" id="clearBtn">Start over</button>
+      <span class="spacer"></span>
+      <span class="save-status" id="saveStatus">Not saved yet</span>
+    </div>
+  </form>
+
+  <p class="footer-note">Copyright &copy; ARC International Corporation 2026. For course practice use.</p>
+</main>
+
+<div id="print-root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="shared/app.js"></script>
+<script>
+  const TOOL_SLUG = "project-2-content-kit";
+  const STORAGE_KEY = "arcwii-lab-project-2-content-kit";
+  const form = document.getElementById("plannerForm");
+
+  Lab.wireStudentBar();
+  Lab.wireImageUpload(form);
+  Lab.initAutosave(form, STORAGE_KEY);
+
+  document.getElementById("downloadPdfBtn").addEventListener("click", (e) => {
+    Lab.exportPdf(form, TOOL_SLUG, "Project 2: Brand Story and Content Kit", e.currentTarget);
+  });
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    Lab.clearStorage(form, STORAGE_KEY);
+  });
+</script>
+</body>
+</html>
