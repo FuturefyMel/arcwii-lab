@@ -58,7 +58,7 @@
       <button type="button" class="btn btn-primary" id="downloadPdfBtn">Download PDF</button>
       <button type="button" class="btn btn-danger" id="clearBtn">Clear form</button>
       <span class="spacer"></span>
-      <span class="save-status" id="saveStatus">Not saved yet</span>
+      <span class="save-status" id="saveStatus">Enter your name above to start saving your work</span>
     </div>
   </form>
 
@@ -90,8 +90,8 @@
   }
 
   const form = document.getElementById("plannerForm");
-  Lab.wireStudentBar();
-  Lab.initAutosave(form, STORAGE_KEY);
+  const autosave = Lab.initAutosave(form, STORAGE_KEY);
+  Lab.wireStudentBar((slug) => autosave.loadForSlug(slug));
   Lab.initFrameControls(form, {
     min: 1, max: MAX_ROWS, defaultCount: DEFAULT_ROWS,
     countStorageKey: STORAGE_KEY + "-row-count", unit: "rows"
@@ -101,7 +101,7 @@
     Lab.exportPdf(form, TOOL_SLUG, "Content Calendar", e.currentTarget);
   });
   document.getElementById("clearBtn").addEventListener("click", () => {
-    Lab.clearStorage(form, STORAGE_KEY);
+    autosave.clear();
   });
 </script>
 </body>

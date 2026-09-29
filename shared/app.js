@@ -3,7 +3,7 @@
    and Download PDF is the submission. */
 
 const Lab = (() => {
-  const STUDENT_INFO_KEY = "arcwii-lab-student-info";
+  const ROSTER_PREFIX = "arcwii-lab-roster::";
 
   function $(sel, root = document) { return root.querySelector(sel); }
   function $all(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
@@ -25,27 +25,61 @@ const Lab = (() => {
       .replace(/(^-|-$)/g, "") || "student";
   }
 
-  // ---------- student info bar (shared across all planner pages) ----------
-  function wireStudentBar() {
+  // ---------- student info bar ----------
+  // On a shared classroom computer, the next student must never see the previous
+  // student's name/project pre-filled. So these fields start blank on every load,
+  // and only once a name is typed do we look up that student's own remembered
+  // project text (keyed by their name) — a different name never sees it.
+  function wireStudentBar(onIdentified) {
     const nameEl = $("#studentName");
     const projectEl = $("#studentProject");
     if (!nameEl || !projectEl) return;
-    let saved = {};
-    try { saved = JSON.parse(localStorage.getItem(STUDENT_INFO_KEY) || "{}"); } catch (e) {}
-    nameEl.value = saved.name || "";
-    projectEl.value = saved.project || "";
-    const save = debounce(() => {
-      localStorage.setItem(STUDENT_INFO_KEY, JSON.stringify({
-        name: nameEl.value, project: projectEl.value
-      }));
-    }, 300);
-    nameEl.addEventListener("input", save);
-    projectEl.addEventListener("input", save);
+
+    nameEl.value = "";
+    projectEl.value = "";
+    let currentSlug = null;
+
+    function loadRoster(slug) {
+      try { return JSON.parse(localStorage.getItem(ROSTER_PREFIX + slug) || "null"); } catch (e) { return null; }
+    }
+    function saveRoster(slug, data) {
+      try { localStorage.setItem(ROSTER_PREFIX + slug, JSON.stringify(data)); } catch (e) {}
+    }
+
+    const handleNameSettled = debounce(() => {
+      const name = nameEl.value.trim();
+      if (!name) {
+        currentSlug = null;
+        projectEl.value = "";
+        if (onIdentified) onIdentified(null);
+        return;
+      }
+      const slug = slugify(name);
+      if (slug !== currentSlug) {
+        currentSlug = slug;
+        const roster = loadRoster(slug);
+        if (roster && roster.project) projectEl.value = roster.project;
+        if (onIdentified) onIdentified(slug);
+      }
+      saveRoster(slug, { name, project: projectEl.value });
+    }, 500);
+
+    const handleProjectInput = debounce(() => {
+      if (currentSlug) saveRoster(currentSlug, { name: nameEl.value.trim(), project: projectEl.value });
+    }, 400);
+
+    nameEl.addEventListener("input", handleNameSettled);
+    projectEl.addEventListener("input", handleProjectInput);
   }
 
+  // Reads live from the form, not storage — always reflects whoever is currently typed in.
   function getStudentInfo() {
-    try { return JSON.parse(localStorage.getItem(STUDENT_INFO_KEY) || "{}"); }
-    catch (e) { return {}; }
+    const nameEl = $("#studentName");
+    const projectEl = $("#studentProject");
+    return {
+      name: nameEl ? nameEl.value.trim() : "",
+      project: projectEl ? projectEl.value.trim() : ""
+    };
   }
 
   // ---------- image upload widgets ----------
@@ -127,46 +161,77 @@ const Lab = (() => {
     });
   }
 
-  // ---------- autosave to localStorage ----------
-  function initAutosave(root, storageKey, opts = {}) {
-    let saved = null;
-    try { saved = JSON.parse(localStorage.getItem(storageKey) || "null"); } catch (e) {}
-    if (saved) restore(root, saved);
-    if (opts.onRestore) opts.onRestore(saved);
-
+  // ---------- autosave to localStorage, isolated per student ----------
+  // Nothing is stored or loaded under storageKeyBase alone — every read/write is
+  // keyed by storageKeyBase + the current student's name, so two students sharing
+  // the same browser never see or overwrite each other's work. Call loadForSlug(null)
+  // (or just leave it unset) until a name is known; wireStudentBar's onIdentified
+  // callback is the normal way to drive this.
+  function initAutosave(root, storageKeyBase) {
     const statusEl = $("#saveStatus");
-    const markSaved = (message) => {
+    let activeKey = null;
+
+    function markSaved(message) {
       if (!statusEl) return;
       statusEl.textContent = message || ("Saved · " + new Date().toLocaleTimeString());
       statusEl.classList.add("ok");
       statusEl.classList.remove("pulse");
-      // restart the pulse animation so each save visibly flashes, even back-to-back
       void statusEl.offsetWidth;
       statusEl.classList.add("pulse");
-    };
+    }
+
+    function setIdleStatus(message) {
+      if (!statusEl) return;
+      statusEl.textContent = message;
+      statusEl.classList.remove("ok", "pulse");
+    }
+
+    function blankForm() {
+      $all("[data-field]", root).forEach((el) => {
+        if (el.dataset.type === "image") {
+          const widget = el.closest("[data-image-widget]");
+          if (widget && widget._setImage) widget._setImage("");
+        } else {
+          el.value = "";
+        }
+      });
+    }
+
+    function loadForSlug(slug) {
+      blankForm();
+      if (!slug) {
+        activeKey = null;
+        setIdleStatus("Enter your name above to start saving your work");
+        return;
+      }
+      activeKey = `${storageKeyBase}::${slug}`;
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem(activeKey) || "null"); } catch (e) {}
+      if (saved) {
+        restore(root, saved);
+        markSaved("Welcome back — your saved work is loaded");
+      } else {
+        setIdleStatus("Not saved yet");
+      }
+    }
+
     const doSave = debounce(() => {
-      localStorage.setItem(storageKey, JSON.stringify(serialize(root)));
+      if (!activeKey) return;
+      localStorage.setItem(activeKey, JSON.stringify(serialize(root)));
       markSaved();
     }, 400);
 
-    if (saved) markSaved("Your saved work is loaded");
+    function clear() {
+      if (!confirm("Clear every answer and image on this page? This cannot be undone.")) return;
+      if (activeKey) localStorage.removeItem(activeKey);
+      blankForm();
+      setIdleStatus(activeKey ? "Not saved yet" : "Enter your name above to start saving your work");
+    }
 
+    setIdleStatus("Enter your name above to start saving your work");
     root.addEventListener("input", doSave);
     root.addEventListener("lab:change", doSave);
-    return { save: doSave, markSaved };
-  }
-
-  function clearStorage(root, storageKey) {
-    if (!confirm("Clear every answer and image on this page? This cannot be undone.")) return;
-    localStorage.removeItem(storageKey);
-    $all("[data-field]", root).forEach((el) => {
-      if (el.dataset.type === "image") {
-        const widget = el.closest("[data-image-widget]");
-        if (widget && widget._setImage) widget._setImage("");
-      } else {
-        el.value = "";
-      }
-    });
+    return { save: doSave, markSaved, loadForSlug, clear };
   }
 
   // ---------- PDF export ----------
@@ -344,7 +409,7 @@ const Lab = (() => {
   }
 
   return {
-    $, $all, wireStudentBar, wireImageUpload, initAutosave, clearStorage,
+    $, $all, wireStudentBar, wireImageUpload, initAutosave,
     exportPdf, initFrameControls
   };
 })();
