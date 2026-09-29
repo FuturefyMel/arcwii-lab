@@ -343,6 +343,20 @@ input[type="text"].answer-line:focus {
 }
 .print-value.empty { color: #9aa5b1; font-style: italic; }
 
+.checklist-item-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.checklist-box {
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  flex-shrink: 0;
+}
+.checklist-item-row .answer-line { flex: 1; }
+
 .visually-hidden {
   position: absolute;
   width: 1px; height: 1px;

@@ -19,7 +19,7 @@
 
 <main>
   <h1 class="planner-title">Project 3: Content Calendar and Campaign Management Plan</h1>
-  <p class="planner-sub">A detailed two-week window of 8&ndash;10 posts, plus your scheduling, roles, timeline, quality, and community response plan.</p>
+  <p class="planner-sub">A detailed two-week window of 8&ndash;10 posts, plus your team's workflow, timeline, quality checklist, and community response plan.</p>
 
   <div class="student-bar">
     <div class="field">
@@ -32,6 +32,24 @@
     </div>
   </div>
 
+  <section class="card">
+    <h2>Scenario: SMART Shoe</h2>
+    <p>You are part of the social media marketing team for SMART Shoe. Your team has been assigned to plan and manage a two-week social media campaign promoting SMART Shoe. All campaign content should be static image posts.</p>
+    <p>Assume you are working with the following five-person team. Use these five team members when assigning responsibility for each post &mdash; consider each person's role when deciding who should be responsible.</p>
+    <table class="time-table">
+      <thead>
+        <tr><th scope="col">Team member</th><th scope="col">Role</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Maya</strong></td><td>Social Media Manager &mdash; oversees the campaign, manages the content calendar, schedules posts, and gives final approval.</td></tr>
+        <tr><td><strong>Jordan</strong></td><td>Content Strategist &mdash; develops content ideas, selects content pillars, and ensures content supports campaign goals.</td></tr>
+        <tr><td><strong>Taylor</strong></td><td>Graphic Designer &mdash; creates the static graphics for social media.</td></tr>
+        <tr><td><strong>Chris</strong></td><td>Copywriter &mdash; writes captions and calls to action.</td></tr>
+        <tr><td><strong>Alexis</strong></td><td>Community Manager &mdash; monitors comments and messages and responds to the online community.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
   <form id="plannerForm">
     <section class="card">
       <h2>Two-week posts</h2>
@@ -39,25 +57,57 @@
     </section>
 
     <section class="card">
-      <h2>Campaign management plan</h2>
+      <h2>Part 2: Team Approval Workflow</h2>
+      <p>Explain your team's approval workflow. Show how a social media post moves from the initial idea to publication. Identify which team member is responsible at each stage.</p>
+      <p style="color:var(--ink-soft);font-size:0.9rem;">
+        For example: Jordan develops the content idea &rarr; Chris writes the caption &rarr; Taylor creates the graphic &rarr; Maya reviews the completed post &rarr; Revisions are made if needed &rarr; Maya gives final approval &rarr; Maya schedules and publishes the post &rarr; Alexis monitors comments and engagement.
+      </p>
       <div class="prompt-row">
-        <label for="workflow">Scheduling and approval workflow</label>
+        <label for="workflow">Your answer</label>
         <textarea class="answer" id="workflow" data-field="workflow"></textarea>
       </div>
+    </section>
+
+    <section class="card">
+      <h2>Part 3: Campaign Timeline</h2>
+      <p>Identify when campaign creation will begin and when it will finish. Enter the date your team will complete each step.</p>
       <div class="prompt-row">
-        <label for="roles">Roles</label>
-        <textarea class="answer" id="roles" data-field="roles"></textarea>
+        <label for="timelineBegin">Begin planning the campaign</label>
+        <input type="date" class="answer-line" id="timelineBegin" data-field="timelineBegin">
       </div>
       <div class="prompt-row">
-        <label for="timeline">Timeline</label>
-        <textarea class="answer" id="timeline" data-field="timeline"></textarea>
+        <label for="timelineCreate">Create the content</label>
+        <input type="date" class="answer-line" id="timelineCreate" data-field="timelineCreate">
       </div>
       <div class="prompt-row">
-        <label for="qualityChecklist">Quality checklist</label>
-        <textarea class="answer" id="qualityChecklist" data-field="qualityChecklist"></textarea>
+        <label for="timelineReview">Review and approve the content</label>
+        <input type="date" class="answer-line" id="timelineReview" data-field="timelineReview">
       </div>
       <div class="prompt-row">
-        <label for="communityResponsePlan">Community response plan</label>
+        <label for="timelineSchedule">Schedule the posts</label>
+        <input type="date" class="answer-line" id="timelineSchedule" data-field="timelineSchedule">
+      </div>
+      <div class="prompt-row">
+        <label for="timelineLaunch">Launch the two-week campaign</label>
+        <input type="date" class="answer-line" id="timelineLaunch" data-field="timelineLaunch">
+      </div>
+      <div class="prompt-row">
+        <label for="timelineComplete">Complete the campaign</label>
+        <input type="date" class="answer-line" id="timelineComplete" data-field="timelineComplete">
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Part 4: Quality Checklist</h2>
+      <p>Create a checklist your team will use before approving a post for publication. Include at least 5 items. Consider branding, spelling and grammar, image quality, caption accuracy, calls to action, and whether the content supports the campaign goal.</p>
+      <div id="checklist"></div>
+    </section>
+
+    <section class="card">
+      <h2>Part 5: Community Response Plan</h2>
+      <p>Create a brief plan explaining how Alexis, the Community Manager, should manage the SMART Shoe online community during the campaign. Explain how the brand should handle positive comments, product questions, negative comments, customer complaints, and spam or inappropriate comments. Also determine how quickly your team should respond and when Alexis should escalate an issue to Maya, the Social Media Manager.</p>
+      <div class="prompt-row">
+        <label for="communityResponsePlan">Your answer</label>
         <textarea class="answer" id="communityResponsePlan" data-field="communityResponsePlan"></textarea>
       </div>
     </section>
@@ -82,14 +132,19 @@
   const TOOL_SLUG = "project-3-two-week-plan";
   const STORAGE_KEY = "arcwii-lab-project-3-two-week-plan";
   const POST_COUNT = 10;
+  const TEAM = ["Maya", "Jordan", "Taylor", "Chris", "Alexis"];
+  const CHECKLIST_ROWS = 6;
 
   const postsRoot = document.getElementById("posts");
   for (let i = 1; i <= POST_COUNT; i++) {
     const el = document.createElement("div");
     el.className = "frame-card";
+    const options = ['<option value="">Choose a team member&hellip;</option>']
+      .concat(TEAM.map((name) => `<option value="${name}">${name}</option>`))
+      .join("");
     el.innerHTML = `
       <h3>Post ${i}</h3>
-      <div class="image-upload" data-image-widget>
+      <div class="image-upload" data-image-widget style="margin-bottom:12px;">
         <div class="image-preview-wrap">
           <img alt="Preview of post ${i} image" style="display:none;">
           <div class="image-upload-controls">
@@ -99,8 +154,22 @@
           </div>
         </div>
         <div data-field="post${i}Image" data-type="image" class="visually-hidden"></div>
+      </div>
+      <div class="prompt-row">
+        <label for="post${i}Owner">Responsible team member</label>
+        <select class="answer-line" id="post${i}Owner" data-field="post${i}Owner">${options}</select>
       </div>`;
     postsRoot.appendChild(el);
+  }
+
+  const checklistRoot = document.getElementById("checklist");
+  for (let i = 1; i <= CHECKLIST_ROWS; i++) {
+    const row = document.createElement("div");
+    row.className = "checklist-item-row";
+    row.innerHTML = `
+      <span class="checklist-box" aria-hidden="true">&#9744;</span>
+      <input type="text" class="answer-line" id="checklist${i}" data-field="checklist${i}" placeholder="Checklist item ${i}">`;
+    checklistRoot.appendChild(row);
   }
 
   const form = document.getElementById("plannerForm");
