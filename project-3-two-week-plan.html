@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project 3: Two-Week Campaign Plan — ARCWII Student Practice Lab</title>
+<link rel="stylesheet" href="shared/styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-row">
+    <div>
+      <div class="brand">ARCWII &middot; Social Media Marketing Certificate Course</div>
+      <h1>Student Practice Lab</h1>
+    </div>
+    <nav><a href="index.html">&larr; All tools</a></nav>
+  </div>
+</header>
+
+<main>
+  <h1 class="planner-title">Project 3: Content Calendar and Campaign Management Plan</h1>
+  <p class="planner-sub">A detailed two-week window of 8&ndash;10 posts, plus your scheduling, roles, timeline, quality, and community response plan.</p>
+
+  <div class="student-bar">
+    <div class="field">
+      <label for="studentName">Student name</label>
+      <input type="text" id="studentName" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="studentProject">Campaign brand or project</label>
+      <input type="text" id="studentProject" autocomplete="off">
+    </div>
+  </div>
+
+  <form id="plannerForm">
+    <section class="card">
+      <h2>Two-week posts</h2>
+      <div id="posts"></div>
+    </section>
+
+    <section class="card">
+      <h2>Campaign management plan</h2>
+      <div class="prompt-row">
+        <label for="workflow">Scheduling and approval workflow</label>
+        <textarea class="answer" id="workflow" data-field="workflow"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="roles">Roles</label>
+        <textarea class="answer" id="roles" data-field="roles"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="timeline">Timeline</label>
+        <textarea class="answer" id="timeline" data-field="timeline"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="qualityChecklist">Quality checklist</label>
+        <textarea class="answer" id="qualityChecklist" data-field="qualityChecklist"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="communityResponsePlan">Community response plan</label>
+        <textarea class="answer" id="communityResponsePlan" data-field="communityResponsePlan"></textarea>
+      </div>
+    </section>
+
+    <div class="action-bar" data-noprint>
+      <button type="button" class="btn btn-primary" id="downloadPdfBtn">Download PDF</button>
+      <button type="button" class="btn btn-danger" id="clearBtn">Start over</button>
+      <span class="spacer"></span>
+      <span class="save-status" id="saveStatus">Not saved yet</span>
+    </div>
+  </form>
+
+  <p class="footer-note">Copyright &copy; ARC International Corporation 2026. For course practice use.</p>
+</main>
+
+<div id="print-root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="shared/app.js"></script>
+<script>
+  const TOOL_SLUG = "project-3-two-week-plan";
+  const STORAGE_KEY = "arcwii-lab-project-3-two-week-plan";
+  const POST_COUNT = 10;
+
+  const postsRoot = document.getElementById("posts");
+  for (let i = 1; i <= POST_COUNT; i++) {
+    const el = document.createElement("div");
+    el.className = "frame-card";
+    el.innerHTML = `
+      <h3>Post ${i}</h3>
+      <div class="image-upload" data-image-widget>
+        <div class="image-preview-wrap">
+          <img alt="Preview of post ${i} image" style="display:none;">
+          <div class="image-upload-controls">
+            <label class="btn btn-secondary btn-small" for="post${i}Image">Choose image&hellip;</label>
+            <input type="file" id="post${i}Image" accept="image/*" class="visually-hidden">
+            <button type="button" class="btn btn-danger btn-small" data-remove-image style="display:none;">Remove image</button>
+          </div>
+        </div>
+        <div data-field="post${i}Image" data-type="image" class="visually-hidden"></div>
+      </div>`;
+    postsRoot.appendChild(el);
+  }
+
+  const form = document.getElementById("plannerForm");
+  Lab.wireStudentBar();
+  Lab.wireImageUpload(form);
+  Lab.initAutosave(form, STORAGE_KEY);
+
+  document.getElementById("downloadPdfBtn").addEventListener("click", (e) => {
+    Lab.exportPdf(form, TOOL_SLUG, "Project 3: Content Calendar and Campaign Management Plan", e.currentTarget);
+  });
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    Lab.clearStorage(form, STORAGE_KEY);
+  });
+</script>
+</body>
+</html>

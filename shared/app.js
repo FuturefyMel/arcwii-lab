@@ -332,7 +332,7 @@ const Lab = (() => {
       if (addBtn) addBtn.disabled = visible >= opts.max;
       if (removeBtn) removeBtn.disabled = visible <= opts.min;
       const label = $("#frameCount", root);
-      if (label) label.textContent = `${visible} of ${opts.max} frames shown`;
+      if (label) label.textContent = `${visible} of ${opts.max} ${opts.unit || "frames"} shown`;
     }
 
     const addBtn = $("#addFrame", root);
