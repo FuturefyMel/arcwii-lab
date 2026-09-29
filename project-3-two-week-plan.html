@@ -156,6 +156,26 @@
         <div data-field="post${i}Image" data-type="image" class="visually-hidden"></div>
       </div>
       <div class="prompt-row">
+        <label for="post${i}Date">Date</label>
+        <input type="date" class="answer-line" id="post${i}Date" data-field="post${i}Date">
+      </div>
+      <div class="prompt-row">
+        <label for="post${i}Platform">Platform</label>
+        <input type="text" class="answer-line" id="post${i}Platform" data-field="post${i}Platform">
+      </div>
+      <div class="prompt-row">
+        <label for="post${i}Topic">Topic</label>
+        <input type="text" class="answer-line" id="post${i}Topic" data-field="post${i}Topic">
+      </div>
+      <div class="prompt-row">
+        <label for="post${i}Goal">Goal</label>
+        <input type="text" class="answer-line" id="post${i}Goal" data-field="post${i}Goal">
+      </div>
+      <div class="prompt-row">
+        <label for="post${i}Caption">Caption</label>
+        <textarea class="answer" id="post${i}Caption" data-field="post${i}Caption"></textarea>
+      </div>
+      <div class="prompt-row">
         <label for="post${i}Owner">Responsible team member</label>
         <select class="answer-line" id="post${i}Owner" data-field="post${i}Owner">${options}</select>
       </div>`;
