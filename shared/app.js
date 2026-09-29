@@ -135,15 +135,21 @@ const Lab = (() => {
     if (opts.onRestore) opts.onRestore(saved);
 
     const statusEl = $("#saveStatus");
-    const markSaved = () => {
+    const markSaved = (message) => {
       if (!statusEl) return;
-      statusEl.textContent = "Saved to this browser " + new Date().toLocaleTimeString();
+      statusEl.textContent = message || ("Saved · " + new Date().toLocaleTimeString());
       statusEl.classList.add("ok");
+      statusEl.classList.remove("pulse");
+      // restart the pulse animation so each save visibly flashes, even back-to-back
+      void statusEl.offsetWidth;
+      statusEl.classList.add("pulse");
     };
     const doSave = debounce(() => {
       localStorage.setItem(storageKey, JSON.stringify(serialize(root)));
       markSaved();
     }, 400);
+
+    if (saved) markSaved("Your saved work is loaded");
 
     root.addEventListener("input", doSave);
     root.addEventListener("lab:change", doSave);

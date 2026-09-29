@@ -297,8 +297,32 @@ input[type="text"].answer-line:focus {
 .save-status {
   font-size: 0.85rem;
   color: var(--ink-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--line-soft);
+  border: 1px solid var(--line);
 }
-.save-status.ok { color: var(--ok); }
+.save-status.ok {
+  color: #157a63;
+  background: #e3f5ef;
+  border-color: #b7e4d5;
+  font-weight: 600;
+}
+.save-status.ok::before {
+  content: "\2713";
+  font-weight: 700;
+}
+.save-status.pulse {
+  animation: save-pulse 0.6s ease;
+}
+@keyframes save-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(21, 122, 99, 0.35); }
+  35% { transform: scale(1.08); box-shadow: 0 0 0 4px rgba(21, 122, 99, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(21, 122, 99, 0); }
+}
 
 .spacer { flex: 1; }
 
