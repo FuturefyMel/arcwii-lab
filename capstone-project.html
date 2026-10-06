@@ -34,6 +34,19 @@
 
   <form id="plannerForm">
     <section class="card">
+      <h2>Product</h2>
+      <div id="productImageWrap"></div>
+      <div class="prompt-row">
+        <label for="productWhat">What is the product?</label>
+        <textarea class="answer" id="productWhat" data-field="productWhat"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="productDoes">What does it do?</label>
+        <textarea class="answer" id="productDoes" data-field="productDoes"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
       <h2>Business Objective</h2>
       <p class="section-help">List up to 3 objectives. One is fine &mdash; you don't have to fill all three.</p>
       <div class="prompt-row">
@@ -187,6 +200,8 @@
         <div data-field="${fieldName}" data-type="image" class="visually-hidden"></div>
       </div>`;
   }
+
+  document.getElementById("productImageWrap").innerHTML = imageWidget("productImage", "Preview of the product image");
 
   const postsRoot = document.getElementById("posts");
   for (let i = 1; i <= POST_COUNT; i++) {
