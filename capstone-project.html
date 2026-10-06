@@ -131,7 +131,7 @@
 
     <section class="card">
       <h2>Customer Journey</h2>
-      <p class="section-help">Upload one image for each stage of the journey.</p>
+      <p class="section-help">Upload one image for each stage of the journey and explain why you chose it.</p>
       <div id="journey"></div>
     </section>
 
@@ -224,7 +224,11 @@
     el.className = "frame-card";
     el.innerHTML = `
       <h3>${stage.label}</h3>
-      ${imageWidget(`journey${stage.key}Image`, `Preview of ${stage.label} stage image`)}`;
+      ${imageWidget(`journey${stage.key}Image`, `Preview of ${stage.label} stage image`)}
+      <div class="prompt-row">
+        <label for="journey${stage.key}Why">Why did you choose this image?</label>
+        <textarea class="answer" id="journey${stage.key}Why" data-field="journey${stage.key}Why"></textarea>
+      </div>`;
     journeyRoot.appendChild(el);
   });
 
