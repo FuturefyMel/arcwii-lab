@@ -162,6 +162,8 @@ main {
 
 .planner-title { margin-bottom: 2px; }
 .planner-sub { color: var(--ink-soft); margin-top: 0; }
+.section-help { color: var(--ink-soft); font-size: 0.92rem; margin-top: 0; }
+textarea.answer.tall { min-height: 160px; }
 
 .card {
   background: #fff;
@@ -324,13 +326,14 @@ input[type="text"].answer-line:focus {
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(21, 122, 99, 0); }
 }
 
-.spacer { flex: 1; }
-
-.frame-controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
+.save-status.error {
+  color: #a13a24;
+  background: #fdece7;
+  border-color: #e6bcae;
+  font-weight: 600;
 }
+
+.spacer { flex: 1; }
 
 .print-value {
   white-space: pre-wrap;
@@ -343,57 +346,12 @@ input[type="text"].answer-line:focus {
 }
 .print-value.empty { color: #9aa5b1; font-style: italic; }
 
-.checklist-item-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.checklist-box {
-  font-size: 1.3rem;
-  line-height: 1;
-  color: var(--ink-soft);
-  flex-shrink: 0;
-}
-.checklist-item-row .answer-line { flex: 1; }
-
 .visually-hidden {
   position: absolute;
   width: 1px; height: 1px;
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
-}
-
-.time-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.time-table th, .time-table td {
-  border: 1px solid var(--line-soft);
-  padding: 10px;
-  vertical-align: top;
-  text-align: left;
-}
-.time-table th {
-  background: #f3f7f8;
-  font-size: 0.85rem;
-  color: var(--navy);
-}
-.time-table td.time-cell {
-  font-weight: 600;
-  white-space: nowrap;
-  color: var(--navy);
-  background: #f9fbfb;
-}
-.time-table textarea {
-  width: 100%;
-  min-height: 60px;
-  font: inherit;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 6px 8px;
-  background: var(--paper);
 }
 
 .footer-note {

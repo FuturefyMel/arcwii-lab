@@ -82,6 +82,30 @@ const Lab = (() => {
     };
   }
 
+  // Browser storage is only a few MB, so full-size phone photos would quickly fill it.
+  // Shrinking to 1000px JPEG keeps each image around 100-200 KB with no visible loss
+  // at the sizes used on screen and in the PDF.
+  function downscaleImage(file, maxDim = 1000, quality = 0.78) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("unreadable image")); };
+      img.src = url;
+    });
+  }
+
   // ---------- image upload widgets ----------
   // Wires a container with: <input type="file">, a preview <img>, a remove <button>,
   // and a hidden holder element (data-field, data-type="image") that stores the data URL.
@@ -117,9 +141,10 @@ const Lab = (() => {
           fileInput.value = "";
           return;
         }
-        const reader = new FileReader();
-        reader.onload = (e) => setImage(e.target.result);
-        reader.readAsDataURL(file);
+        downscaleImage(file).then(setImage).catch(() => {
+          alert("That image couldn't be read. Please try a JPG or PNG file.");
+          fileInput.value = "";
+        });
       });
 
       removeBtn.addEventListener("click", () => {
@@ -175,7 +200,7 @@ const Lab = (() => {
       if (!statusEl) return;
       statusEl.textContent = message || ("Saved · " + new Date().toLocaleTimeString());
       statusEl.classList.add("ok");
-      statusEl.classList.remove("pulse");
+      statusEl.classList.remove("pulse", "error");
       void statusEl.offsetWidth;
       statusEl.classList.add("pulse");
     }
@@ -183,7 +208,7 @@ const Lab = (() => {
     function setIdleStatus(message) {
       if (!statusEl) return;
       statusEl.textContent = message;
-      statusEl.classList.remove("ok", "pulse");
+      statusEl.classList.remove("ok", "pulse", "error");
     }
 
     function blankForm() {
@@ -217,8 +242,15 @@ const Lab = (() => {
 
     const doSave = debounce(() => {
       if (!activeKey) return;
-      localStorage.setItem(activeKey, JSON.stringify(serialize(root)));
-      markSaved();
+      try {
+        localStorage.setItem(activeKey, JSON.stringify(serialize(root)));
+        markSaved();
+      } catch (e) {
+        if (!statusEl) return;
+        statusEl.textContent = "Couldn't save — browser storage is full. Download your PDF now.";
+        statusEl.classList.remove("ok", "pulse");
+        statusEl.classList.add("error");
+      }
     }, 400);
 
     function clear() {
@@ -377,39 +409,8 @@ const Lab = (() => {
     }
   }
 
-  // ---------- frame show/hide (carousel planner) ----------
-  function initFrameControls(root, opts) {
-    const frames = $all("[data-frame]", root);
-    const countKey = opts.countStorageKey;
-    let visible = opts.defaultCount;
-    try {
-      const savedCount = parseInt(localStorage.getItem(countKey), 10);
-      if (savedCount >= opts.min && savedCount <= opts.max) visible = savedCount;
-    } catch (e) {}
-
-    function applyVisibility() {
-      frames.forEach((f, i) => {
-        f.style.display = i < visible ? "" : "none";
-      });
-      localStorage.setItem(countKey, String(visible));
-      const addBtn = $("#addFrame", root);
-      const removeBtn = $("#removeFrame", root);
-      if (addBtn) addBtn.disabled = visible >= opts.max;
-      if (removeBtn) removeBtn.disabled = visible <= opts.min;
-      const label = $("#frameCount", root);
-      if (label) label.textContent = `${visible} of ${opts.max} ${opts.unit || "frames"} shown`;
-    }
-
-    const addBtn = $("#addFrame", root);
-    const removeBtn = $("#removeFrame", root);
-    if (addBtn) addBtn.addEventListener("click", () => { if (visible < opts.max) visible++; applyVisibility(); });
-    if (removeBtn) removeBtn.addEventListener("click", () => { if (visible > opts.min) visible--; applyVisibility(); });
-
-    applyVisibility();
-  }
-
   return {
     $, $all, wireStudentBar, wireImageUpload, initAutosave,
-    exportPdf, initFrameControls
+    exportPdf
   };
 })();

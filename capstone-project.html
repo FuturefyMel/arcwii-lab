@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capstone Project — ARCWII Student Practice Lab</title>
+<link rel="stylesheet" href="shared/styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-row">
+    <div>
+      <div class="brand">ARCWII &middot; Social Media Marketing Certificate Course</div>
+      <h1>Student Practice Lab</h1>
+    </div>
+    <nav><a href="index.html">&larr; Home</a></nav>
+  </div>
+</header>
+
+<main>
+  <h1 class="planner-title">Capstone Project</h1>
+  <p class="planner-sub">Complete each section of your campaign, then download your finished capstone as a PDF.</p>
+
+  <div class="student-bar">
+    <div class="field">
+      <label for="studentName">Student name</label>
+      <input type="text" id="studentName" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="studentProject">Campaign brand or project</label>
+      <input type="text" id="studentProject" autocomplete="off">
+    </div>
+  </div>
+
+  <form id="plannerForm">
+    <section class="card">
+      <h2>Business Objective</h2>
+      <p class="section-help">List up to 3 objectives. One is fine &mdash; you don't have to fill all three.</p>
+      <div class="prompt-row">
+        <label for="objective1">Objective 1</label>
+        <textarea class="answer" id="objective1" data-field="objective1"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="objective2">Objective 2 (optional)</label>
+        <textarea class="answer" id="objective2" data-field="objective2"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="objective3">Objective 3 (optional)</label>
+        <textarea class="answer" id="objective3" data-field="objective3"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Branding</h2>
+      <div class="prompt-row">
+        <label for="brandMessage">Brand message</label>
+        <textarea class="answer" id="brandMessage" data-field="brandMessage"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="brandPersonality">Brand personality</label>
+        <textarea class="answer" id="brandPersonality" data-field="brandPersonality"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="demographics">Demographics</label>
+        <textarea class="answer" id="demographics" data-field="demographics"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="psychographics">Psychographics</label>
+        <textarea class="answer" id="psychographics" data-field="psychographics"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="painPoints">Pain points</label>
+        <textarea class="answer" id="painPoints" data-field="painPoints"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Social Media</h2>
+      <div class="prompt-row">
+        <label for="platforms">Choose platforms</label>
+        <textarea class="answer" id="platforms" data-field="platforms"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="contentPillars">Content pillars</label>
+        <textarea class="answer" id="contentPillars" data-field="contentPillars"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="contentTypes">Content types</label>
+        <textarea class="answer" id="contentTypes" data-field="contentTypes"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Brand Story</h2>
+      <div class="prompt-row">
+        <label for="brandStory">Brand story</label>
+        <textarea class="answer tall" id="brandStory" data-field="brandStory"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Content</h2>
+      <p class="section-help">Add up to 12 posts. For each one, upload the image and fill in the details.</p>
+      <div id="posts"></div>
+    </section>
+
+    <section class="card">
+      <h2>SMART Goal</h2>
+      <p class="section-help">What is your SMART goal? Answer each part separately.</p>
+      <div class="prompt-row">
+        <label for="smartS">S &mdash; Specific</label>
+        <textarea class="answer" id="smartS" data-field="smartS"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="smartM">M &mdash; Measurable</label>
+        <textarea class="answer" id="smartM" data-field="smartM"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="smartA">A &mdash; Achievable</label>
+        <textarea class="answer" id="smartA" data-field="smartA"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="smartR">R &mdash; Relevant</label>
+        <textarea class="answer" id="smartR" data-field="smartR"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="smartT">T &mdash; Time-bound</label>
+        <textarea class="answer" id="smartT" data-field="smartT"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Customer Journey</h2>
+      <p class="section-help">Upload one image for each stage of the journey.</p>
+      <div id="journey"></div>
+    </section>
+
+    <section class="card">
+      <h2>KPIs</h2>
+      <div class="prompt-row">
+        <label for="kpisImportant">What KPIs are important to your campaign?</label>
+        <textarea class="answer" id="kpisImportant" data-field="kpisImportant"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="kpisResult">Explain the desired result</label>
+        <textarea class="answer" id="kpisResult" data-field="kpisResult"></textarea>
+      </div>
+    </section>
+
+    <div class="action-bar" data-noprint>
+      <button type="button" class="btn btn-primary" id="downloadPdfBtn">Download PDF</button>
+      <button type="button" class="btn btn-danger" id="clearBtn">Clear form</button>
+      <span class="spacer"></span>
+      <span class="save-status" id="saveStatus">Enter your name above to start saving your work</span>
+    </div>
+  </form>
+
+  <p class="footer-note">Copyright &copy; ARC International Corporation 2026. For course practice use.</p>
+</main>
+
+<div id="print-root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="shared/app.js"></script>
+<script>
+  const TOOL_SLUG = "capstone-project";
+  const STORAGE_KEY = "arcwii-lab-capstone-project";
+  const POST_COUNT = 12;
+  const JOURNEY_STAGES = [
+    { key: "Awareness", label: "Awareness" },
+    { key: "Consideration", label: "Consideration" },
+    { key: "Action", label: "Action" }
+  ];
+
+  function imageWidget(fieldName, altText) {
+    return `
+      <div class="image-upload" data-image-widget style="margin-bottom:12px;">
+        <div class="image-preview-wrap">
+          <img alt="${altText}" style="display:none;">
+          <div class="image-upload-controls">
+            <label class="btn btn-secondary btn-small" for="${fieldName}">Choose image&hellip;</label>
+            <input type="file" id="${fieldName}" accept="image/*" class="visually-hidden">
+            <button type="button" class="btn btn-danger btn-small" data-remove-image style="display:none;">Remove image</button>
+          </div>
+        </div>
+        <div data-field="${fieldName}" data-type="image" class="visually-hidden"></div>
+      </div>`;
+  }
+
+  const postsRoot = document.getElementById("posts");
+  for (let i = 1; i <= POST_COUNT; i++) {
+    const el = document.createElement("div");
+    el.className = "frame-card";
+    el.innerHTML = `
+      <h3>Post ${i}</h3>
+      ${imageWidget(`post${i}Image`, `Preview of post ${i} image`)}
+      <div class="prompt-row">
+        <label for="post${i}Caption">Caption</label>
+        <textarea class="answer" id="post${i}Caption" data-field="post${i}Caption"></textarea>
+      </div>
+      <div class="prompt-row">
+        <label for="post${i}Tags">Tags</label>
+        <input type="text" class="answer-line" id="post${i}Tags" data-field="post${i}Tags">
+      </div>
+      <div class="prompt-row">
+        <label for="post${i}Role">Role</label>
+        <input type="text" class="answer-line" id="post${i}Role" data-field="post${i}Role">
+      </div>
+      <div class="prompt-row">
+        <label for="post${i}Kpi">KPI</label>
+        <input type="text" class="answer-line" id="post${i}Kpi" data-field="post${i}Kpi">
+      </div>
+      <div class="prompt-row">
+        <label for="post${i}Schedule">Posting days and times</label>
+        <input type="text" class="answer-line" id="post${i}Schedule" data-field="post${i}Schedule">
+      </div>`;
+    postsRoot.appendChild(el);
+  }
+
+  const journeyRoot = document.getElementById("journey");
+  JOURNEY_STAGES.forEach((stage) => {
+    const el = document.createElement("div");
+    el.className = "frame-card";
+    el.innerHTML = `
+      <h3>${stage.label}</h3>
+      ${imageWidget(`journey${stage.key}Image`, `Preview of ${stage.label} stage image`)}`;
+    journeyRoot.appendChild(el);
+  });
+
+  const form = document.getElementById("plannerForm");
+  Lab.wireImageUpload(form);
+  const autosave = Lab.initAutosave(form, STORAGE_KEY);
+  Lab.wireStudentBar((slug) => autosave.loadForSlug(slug));
+
+  document.getElementById("downloadPdfBtn").addEventListener("click", (e) => {
+    Lab.exportPdf(form, TOOL_SLUG, "Capstone Project", e.currentTarget);
+  });
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    autosave.clear();
+  });
+</script>
+</body>
+</html>
